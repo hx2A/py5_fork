@@ -89,7 +89,7 @@ except ImportError:
     pass
 
 
-__version__ = '0.9.1.dev0'
+__version__ = '0.9.1.rc1'
 
 _PY5_USE_IMPORTED_MODE = py5_tools.get_imported_mode()
 py5_tools._lock_imported_mode()
@@ -2785,8 +2785,6 @@ def bezier_vertex(*args):
 
 def bezier_vertices(coordinates: npt.NDArray[np.floating], /) -> None:
     """Create a collection of bezier vertices.
-
-    Underlying Processing method: PApplet.bezierVertices
 
     Parameters
     ----------
@@ -6395,8 +6393,6 @@ def curve_vertex(*args):
 def curve_vertices(coordinates: npt.NDArray[np.floating], /) -> None:
     """Create a collection of curve vertices.
 
-    Underlying Processing method: PApplet.curveVertices
-
     Parameters
     ----------
 
@@ -9269,8 +9265,6 @@ def line(*args):
 def lines(coordinates: npt.NDArray[np.floating], /) -> None:
     """Draw a collection of lines to the screen.
 
-    Underlying Processing method: PApplet.lines
-
     Parameters
     ----------
 
@@ -10705,8 +10699,6 @@ def points(coordinates: npt.NDArray[np.floating], /) -> None:
     """Draw a collection of points, each a coordinate in space at the dimension of one
     pixel.
 
-    Underlying Processing method: PApplet.points
-
     Parameters
     ----------
 
@@ -11113,8 +11105,6 @@ def quadratic_vertex(*args):
 
 def quadratic_vertices(coordinates: npt.NDArray[np.floating], /) -> None:
     """Create a collection of quadratic vertices.
-
-    Underlying Processing method: PApplet.quadraticVertices
 
     Parameters
     ----------
@@ -17331,8 +17321,6 @@ def vertex(*args):
 def vertices(coordinates: npt.NDArray[np.floating], /) -> None:
     """Create a collection of vertices.
 
-    Underlying Processing method: PApplet.vertices
-
     Parameters
     ----------
 
@@ -21047,8 +21035,8 @@ def run_sketch(block: bool = None, *,
     Mode. This value must be the canonical name of your Processing Sketch class
     (i.e. `"org.test.MySketch"`). The class must inherit from `py5.core.SketchBase`.
     Read py5's online documentation to learn more about Processing Mode."""
-    caller_globals = inspect.stack()[1].frame.f_globals
     caller_locals = inspect.stack()[1].frame.f_locals
+    caller_globals = inspect.stack()[1].frame.f_globals
     functions, function_param_counts = bridge._extract_py5_user_function_data(
         sketch_functions if sketch_functions else caller_locals)
     functions = _split_setup.transform(
@@ -21078,13 +21066,12 @@ def run_sketch(block: bool = None, *,
 
     _prepare_dynamic_variables(caller_locals, caller_globals)
 
-    _py5sketch._run_sketch(
-        functions,
-        function_param_counts,
-        block,
-        py5_options,
-        sketch_args,
-        _osx_alt_run_method)
+    _py5sketch._run_sketch(functions, function_param_counts, block,
+                           py5_options=py5_options,
+                           sketch_args=sketch_args,
+                           _caller_locals=caller_locals,
+                           _caller_globals=caller_globals,
+                           _osx_alt_run_method=_osx_alt_run_method)
 
 
 def get_current_sketch() -> Sketch:

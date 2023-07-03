@@ -29,9 +29,14 @@ import py5_tools
 
 
 PY5_IMPORTED_MODE_CODE_MARKER_REGEX = re.compile(
-    r"^# PY5 IMPORTED MODE CODE\s*$", re.MULTILINE)
+    r"^# PY5 IMPORTED MODE CODE\s*$",
+    re.MULTILINE | re.IGNORECASE)
 PY5_HEADER = '\n\n\n'.join(
     [f'def {dvar}():\n    return get_current_sketch().{dvar}' for dvar in py5_tools.reference.PY5_DYNAMIC_VARIABLES])
+
+
+class Py5ImportError(ImportError):
+    pass
 
 
 class Py5ImportedModeFinder(MetaPathFinder):
@@ -113,9 +118,9 @@ class Py5ImportedModeLoader(Loader):
         problems = py5_tools.parsing.check_reserved_words(code_src, code_ast)
         if problems:
             msg = 'There ' + ('is a problem' if len(problems) ==
-                              1 else f'are {len(problems)} problems') + ' with the code in ' + str(self.filename) + '.\n'
+                              1 else f'are {len(problems)} problems') + ' with the imported "' + str(module.__name__) + '" module.\n'
             msg += '=' * len(msg) + '\n' + '\n'.join(problems)
-            raise ImportError(msg)
+            raise Py5ImportError(msg)
 
         # add the necessary helper methods for for dynamic variables
         code_src = PY5_HEADER + "\n\n\n" + code_src
